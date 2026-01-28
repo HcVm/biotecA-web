@@ -98,7 +98,7 @@ const adminNav = [
     },
 ]
 
-export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & { user?: any }) {
+export function AppSidebar({ user, role, ...props }: React.ComponentProps<typeof Sidebar> & { user?: any, role?: string }) {
     const pathname = usePathname()
     const router = useRouter()
 
@@ -108,11 +108,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
         router.push('/login')
     }
 
-    // Basic check for admin role from metadata
-    // In a real app we might want to be stricter or fetch profile, but metadata usually carries it if synced
-    // For now we show it always or check user metadata if available
-    // const isAdmin = user?.user_metadata?.role === 'admin'
-    // To ensure the user sees it as requested, we will render it.
+    const userRole = role || user?.user_metadata?.role || 'staff'
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -152,27 +148,29 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
 
                 <SidebarSeparator />
 
-                <SidebarGroup>
-                    <SidebarGroupLabel>Administración</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {adminNav.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        tooltip={item.title}
-                                        isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
-                                    >
-                                        <Link href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+                {userRole === 'admin' && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Administración</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {adminNav.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            tooltip={item.title}
+                                            isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
+                                        >
+                                            <Link href={item.url}>
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
 
             </SidebarContent>
             <SidebarFooter>
@@ -192,7 +190,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
                                     </Avatar>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-semibold">{user?.user_metadata?.full_name || 'Usuario'}</span>
-                                        <span className="truncate text-xs">{user?.email}</span>
+                                        <span className="truncate text-xs capitalize">{userRole === 'doctor' ? 'Doctor' : userRole === 'admin' ? 'Administrador' : userRole}</span>
                                     </div>
                                     <Settings className="ml-auto size-4" />
                                 </SidebarMenuButton>
@@ -217,12 +215,12 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href="/account">
-                                        {/* Added link to account here if we have it, or just keep generic */}
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        Configuración
+                                    <Link href="/dashboard/perfil" className="cursor-pointer">
+                                        <UserCog className="mr-2 h-4 w-4" />
+                                        Mi Perfil Profesional
                                     </Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={handleSignOut} className="text-red-500 hover:text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-950/20">
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Cerrar Sesión

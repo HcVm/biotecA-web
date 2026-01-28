@@ -22,9 +22,22 @@ export default async function DashboardLayout({
         data: { user },
     } = await supabase.auth.getUser()
 
+    // Fetch up-to-date profile role
+    let userRole = 'staff'
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+        if (profile) {
+            userRole = profile.role
+        }
+    }
+
     return (
         <SidebarProvider>
-            <AppSidebar user={user} />
+            <AppSidebar user={user} role={userRole} />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
