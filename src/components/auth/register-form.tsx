@@ -26,9 +26,10 @@ const formSchema = z.object({
     password: z.string().min(6, {
         message: "La contraseña debe tener al menos 6 caracteres.",
     }),
+    full_name: z.string().min(2, "Ingrese su nombre completo"),
 })
 
-export function LoginForm() {
+export function RegisterForm() {
     const router = useRouter()
     const [error, setError] = useState<string | null>(null)
     const [isPending, startTransition] = useTransition()
@@ -38,6 +39,7 @@ export function LoginForm() {
         defaultValues: {
             email: "",
             password: "",
+            full_name: "",
         },
     })
 
@@ -45,9 +47,15 @@ export function LoginForm() {
         setError(null)
         startTransition(async () => {
             const supabase = createClient()
-            const { error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signUp({
                 email: values.email,
                 password: values.password,
+                options: {
+                    data: {
+                        full_name: values.full_name,
+                        role: 'patient', // Explicitly role patient
+                    },
+                },
             })
 
             if (error) {
@@ -55,7 +63,10 @@ export function LoginForm() {
                 return
             }
 
-            router.push('/')
+            // Auto login or redirect to confirm
+            // For dev/test environments without email confirm enabled, this logs them in.
+            // If email confirm is on, it asks to check email.
+            router.push('/portal')
             router.refresh()
         })
     }
@@ -63,9 +74,9 @@ export function LoginForm() {
     return (
         <Card className="w-full max-w-md mx-auto shadow-lg">
             <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-center text-primary">Bioteca Web</CardTitle>
+                <CardTitle className="text-2xl font-bold text-center text-primary">Crear Cuenta</CardTitle>
                 <CardDescription className="text-center">
-                    Ingresa tus credenciales para acceder al sistema
+                    Regístrese para acceder al Portal del Paciente
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -73,12 +84,25 @@ export function LoginForm() {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
                             control={form.control}
+                            name="full_name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nombre Completo</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Juan Pérez" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="usuario@bioteca.com" {...field} />
+                                        <Input placeholder="paciente@ejemplo.com" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -99,19 +123,16 @@ export function LoginForm() {
                         />
                         {error && <div className="text-red-500 text-sm text-center font-medium">{error}</div>}
                         <Button type="submit" className="w-full" disabled={isPending}>
-                            {isPending ? "Ingresando..." : "Ingresar"}
+                            {isPending ? "Creando cuenta..." : "Registrarse"}
                         </Button>
                     </form>
                 </Form>
             </CardContent>
-            <CardFooter className="flex flex-col gap-2 justify-center">
-                <Button variant="link" size="sm" className="text-muted-foreground">
-                    ¿Olvidaste tu contraseña?
-                </Button>
+            <CardFooter className="justify-center">
                 <div className="text-sm text-muted-foreground">
-                    ¿Eres nuevo?{" "}
-                    <Link href="/register" className="text-primary underline hover:text-primary/90">
-                        Crear Cuenta
+                    ¿Ya tiene cuenta?{" "}
+                    <Link href="/login" className="text-primary underline hover:text-primary/90">
+                        Ingresar
                     </Link>
                 </div>
             </CardFooter>
