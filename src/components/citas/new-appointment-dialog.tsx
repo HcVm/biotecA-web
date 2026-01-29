@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Loader2 } from "lucide-react"
+import { Plus, Loader2, User, Calendar, FileText } from "lucide-react"
 import { appointmentSchema, AppointmentFormValues } from "@/lib/validations"
 import { createAppointment, getDoctorAvailability } from "@/lib/actions/appointments"
 import { useRouter } from "next/navigation"
@@ -43,7 +43,7 @@ export function NewAppointmentDialog() {
     const [loadingSlots, setLoadingSlots] = useState(false)
 
     const form = useForm<AppointmentFormValues>({
-        resolver: zodResolver(appointmentSchema),
+        resolver: zodResolver(appointmentSchema) as any,
         defaultValues: {
             status: 'scheduled',
             duration: 30,
@@ -124,157 +124,180 @@ export function NewAppointmentDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
+                <Button className="bg-teal-600 hover:bg-teal-700 text-white shadow-sm">
                     <Plus className="mr-2 h-4 w-4" /> Nueva Cita
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Agendar Nueva Cita</DialogTitle>
+                    <DialogTitle className="text-xl">Agendar Nueva Cita</DialogTitle>
                     <DialogDescription>
-                        Seleccione doctor, día y hora disponible.
+                        Complete los datos para programar una sesión médica.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-2">
 
-                        <FormField
-                            control={form.control}
-                            name="patient_id"
-                            render={({ field }) => (
+                        {/* Asignación */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <User className="mr-2 h-4 w-4 text-teal-600" /> Paciente & Especialista
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="patient_id"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Paciente</FormLabel>
+                                            <Combobox
+                                                items={patients}
+                                                value={field.value}
+                                                onSelect={field.onChange}
+                                                placeholder="Seleccionar paciente..."
+                                                searchPlaceholder="Buscar..."
+                                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="doctor_id"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Especialista</FormLabel>
+                                            <Combobox
+                                                items={doctors}
+                                                value={field.value}
+                                                onSelect={(v) => {
+                                                    field.onChange(v);
+                                                    setUiTime("")
+                                                }}
+                                                placeholder="Seleccionar doctor..."
+                                                searchPlaceholder="Buscar..."
+                                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Programación */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <Calendar className="mr-2 h-4 w-4 text-blue-600" /> Programación
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>Paciente</FormLabel>
-                                    <Combobox
-                                        items={patients}
-                                        value={field.value}
-                                        onSelect={field.onChange}
-                                        placeholder="Seleccionar paciente..."
-                                        searchPlaceholder="Buscar paciente..."
-                                    />
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="doctor_id"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Doctor / Especialista</FormLabel>
-                                    <Combobox
-                                        items={doctors}
-                                        value={field.value}
-                                        onSelect={(v) => {
-                                            field.onChange(v);
-                                            // Reset time when doctor changes
-                                            setUiTime("")
-                                        }}
-                                        placeholder="Seleccionar especialista..."
-                                        searchPlaceholder="Buscar especialista..."
-                                    />
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormItem>
-                                <FormLabel>Fecha</FormLabel>
-                                <FormControl>
+                                    <FormLabel>Fecha</FormLabel>
                                     <Input
                                         type="date"
                                         value={uiDate}
                                         onChange={(e) => {
                                             setUiDate(e.target.value)
-                                            // Update form state to trigger effect (a bit hacky sync)
                                             form.setValue('appointment_date', new Date(e.target.value))
                                             setUiTime("")
                                         }}
+                                        className="block"
                                     />
-                                </FormControl>
-                            </FormItem>
+                                </FormItem>
 
-                            <FormItem>
-                                <FormLabel>Hora Inicio</FormLabel>
-                                {loadingSlots ? (
-                                    <div className="flex items-center text-xs text-muted-foreground h-10 border rounded px-3">
-                                        <Loader2 className="mr-2 h-3 w-3 animate-spin" /> Buscando...
-                                    </div>
-                                ) : (
-                                    <Select value={uiTime} onValueChange={setUiTime} disabled={availableSlots.length === 0}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={availableSlots.length > 0 ? "Seleccionar hora" : "Sin disponibilidad"} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="max-h-[200px]">
-                                            {availableSlots.map(slot => (
-                                                <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                                            ))}
-                                            {availableSlots.length === 0 && <SelectItem value="none" disabled>No hay turnos libres</SelectItem>}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            </FormItem>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="duration"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Duración (min)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="appointment_type"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tipo</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Hora Inicio</FormLabel>
+                                    {loadingSlots ? (
+                                        <div className="flex items-center text-xs text-muted-foreground h-10 border rounded-md px-3 bg-slate-50">
+                                            <Loader2 className="mr-2 h-3 w-3 animate-spin" /> Buscando...
+                                        </div>
+                                    ) : (
+                                        <Select value={uiTime} onValueChange={setUiTime} disabled={availableSlots.length === 0}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Tipo" />
+                                                    <SelectValue placeholder={availableSlots.length > 0 ? "Seleccionar hora" : "Sin cupos"} />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="Consulta Inicial">Consulta Inicial</SelectItem>
-                                                <SelectItem value="Seguimiento">Seguimiento</SelectItem>
-                                                <SelectItem value="Tratamiento">Tratamiento</SelectItem>
-                                                <SelectItem value="Urgencia">Urgencia</SelectItem>
+                                            <SelectContent className="max-h-[200px]">
+                                                {availableSlots.map(slot => (
+                                                    <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                                                ))}
+                                                {availableSlots.length === 0 && <SelectItem value="none" disabled>No hay disponibilidad</SelectItem>}
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                    )}
+                                </FormItem>
+
+                                <FormField
+                                    control={form.control}
+                                    name="duration"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Duración (min)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="notes"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Notas</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Motivo de la consulta..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Detalles */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <FileText className="mr-2 h-4 w-4 text-orange-600" /> Detalles de la Sesión
+                            </h4>
+                            <div className="grid grid-cols-1 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="appointment_type"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tipo de Cita</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Seleccionar tipo" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Consulta Inicial">Consulta Inicial</SelectItem>
+                                                    <SelectItem value="Seguimiento">Seguimiento</SelectItem>
+                                                    <SelectItem value="Tratamiento">Tratamiento</SelectItem>
+                                                    <SelectItem value="Urgencia">Urgencia</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="notes"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Notas / Motivo</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Describa el motivo de la consulta..." {...field} className="min-h-[80px]" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
 
-                        <DialogFooter>
-                            <Button type="submit" disabled={isPending || !uiTime}>
-                                {isPending ? "Agendando..." : "Confirmar Cita"}
+                        <DialogFooter className="pt-4 border-t border-slate-100">
+                            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+                            <Button type="submit" disabled={isPending || !uiTime} className="bg-teal-600 hover:bg-teal-700">
+                                {isPending ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Agendando...
+                                    </>
+                                ) : (
+                                    "Confirmar Cita"
+                                )}
                             </Button>
                         </DialogFooter>
                     </form>

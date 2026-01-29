@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Patient } from "@/types/patient"
 import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export const columns: ColumnDef<Patient>[] = [
     {
@@ -58,13 +59,20 @@ export const columns: ColumnDef<Patient>[] = [
             const lastName = row.original.last_name
             const email = row.original.email
             const id = row.original.id
+            const initials = `${firstName[0]}${lastName[0]}`.toUpperCase()
 
             return (
-                <div className="flex flex-col">
-                    <Link href={`/pacientes/${id}`} className="font-medium hover:underline hover:text-primary transition-colors">
-                        {firstName} {lastName}
-                    </Link>
-                    <span className="text-xs text-muted-foreground">{email}</span>
+                <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${email}`} alt={firstName} />
+                        <AvatarFallback className="bg-teal-100 text-teal-700 font-bold">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <Link href={`/pacientes/${id}`} className="font-medium hover:underline hover:text-teal-600 transition-colors">
+                            {firstName} {lastName}
+                        </Link>
+                        <span className="text-xs text-muted-foreground">{email}</span>
+                    </div>
                 </div>
             )
         }

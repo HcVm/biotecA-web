@@ -13,7 +13,14 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Settings2 } from "lucide-react"
+import {
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    Settings2,
+    ArrowUpDown // Keep this if used, though it was in columns
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +29,8 @@ import {
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuTrigger,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import {
     Table,
@@ -69,28 +78,18 @@ export function DataTable<TData, TValue>({
     })
 
     return (
-        <div className="w-full space-y-4">
-            <div className="flex items-center justify-between py-4">
-                <div className="flex items-center gap-2">
-                    <Input
-                        placeholder="Filtrar por nombre..."
-                        value={(table.getColumn("full_name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("full_name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                    {/* Add more filters here if needed */}
-                </div>
-
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-4 flex items-center justify-end border-b border-slate-200/60">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
+                        <Button variant="outline" size="sm" className="h-8">
                             <Settings2 className="mr-2 h-4 w-4" />
                             Vistas
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-[150px]">
+                        <DropdownMenuLabel>Alternar columnas</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
                         {table
                             .getAllColumns()
                             .filter(
@@ -113,14 +112,15 @@ export function DataTable<TData, TValue>({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border bg-card">
+
+            <div className="relative">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-slate-50/50">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className="hover:bg-transparent border-slate-200">
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead key={header.id} className="h-12 px-4 text-xs uppercase font-medium text-slate-500 tracking-wider">
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -139,9 +139,10 @@ export function DataTable<TData, TValue>({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
+                                    className="hover:bg-slate-50 transition-colors border-slate-200"
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell key={cell.id} className="px-4 py-3">
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
@@ -154,7 +155,7 @@ export function DataTable<TData, TValue>({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center"
+                                    className="h-24 text-center text-slate-500"
                                 >
                                     No se encontraron resultados.
                                 </TableCell>
@@ -163,28 +164,11 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+
+            <div className="flex items-center justify-between p-4 border-t border-slate-200 bg-slate-50/50">
                 <div className="flex-1 text-sm text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} de{" "}
                     {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Anterior
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Siguiente
-                    </Button>
                 </div>
             </div>
         </div>

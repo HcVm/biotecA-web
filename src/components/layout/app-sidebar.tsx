@@ -2,19 +2,20 @@
 
 import * as React from "react"
 import {
-    Calendar,
-    Home,
-    Users,
-    Stethoscope,
-    Package,
-    FileText,
-    BarChart,
+    LayoutDashboard,
+    UsersRound,
+    CalendarDays,
+    Stethoscope, // Tratamientos
+    PackageSearch,
+    ReceiptEuro,
+    ChartPie,
     Settings,
     LogOut,
     User2,
-    Shield, // Imported
-    Clock,  // Imported
-    UserCog // Imported
+    ShieldCheck,
+    CalendarClock,
+    Activity,
+    UserCog
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
@@ -28,10 +29,10 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
-    SidebarSeparator, // Imported and used
-    SidebarGroup, // Imported
-    SidebarGroupLabel, // Imported
-    SidebarGroupContent // Imported
+    SidebarSeparator,
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarGroupContent
 } from "@/components/ui/sidebar"
 import {
     DropdownMenu,
@@ -50,17 +51,17 @@ const navMain = [
     {
         title: "Dashboard",
         url: "/dashboard",
-        icon: Home,
+        icon: LayoutDashboard,
     },
     {
         title: "Pacientes",
         url: "/pacientes",
-        icon: Users,
+        icon: UsersRound,
     },
     {
         title: "Citas",
         url: "/citas",
-        icon: Calendar,
+        icon: CalendarDays,
     },
     {
         title: "Tratamientos",
@@ -70,31 +71,31 @@ const navMain = [
     {
         title: "Inventario",
         url: "/inventario",
-        icon: Package,
+        icon: PackageSearch,
     },
     {
         title: "Facturación",
         url: "/facturacion",
-        icon: FileText,
+        icon: ReceiptEuro,
     },
     {
         title: "Reportes",
         url: "/reportes",
-        icon: BarChart,
+        icon: ChartPie,
     },
 ]
 
 // Admin specific items
 const adminNav = [
     {
-        title: "Usuarios",
+        title: "Gestión de Usuarios",
         url: "/admin/usuarios",
-        icon: UserCog,
+        icon: ShieldCheck,
     },
     {
-        title: "Horarios",
+        title: "Configurar Horarios",
         url: "/admin/horarios",
-        icon: Clock,
+        icon: CalendarClock,
     },
 ]
 
@@ -113,13 +114,13 @@ export function AppSidebar({ user, role, ...props }: React.ComponentProps<typeof
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <div className="flex items-center gap-2 px-2 py-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <Stethoscope className="h-5 w-5" />
+                <div className="flex items-center gap-3 px-1.5 py-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
+                        <Activity className="h-5 w-5" />
                     </div>
                     <div className="flex flex-col gap-0.5 leading-none">
-                        <span className="font-semibold">Bioteca Web</span>
-                        <span className="text-xs text-muted-foreground">Clínica Podológica</span>
+                        <span className="font-bold text-base tracking-tight text-slate-900">Bioteca Web</span>
+                        <span className="text-xs font-medium text-slate-500">Clínica Podológica</span>
                     </div>
                 </div>
             </SidebarHeader>
@@ -134,6 +135,7 @@ export function AppSidebar({ user, role, ...props }: React.ComponentProps<typeof
                                         asChild
                                         tooltip={item.title}
                                         isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
+                                        className="text-slate-600 hover:text-slate-900 data-[active=true]:bg-indigo-50 data-[active=true]:text-indigo-700 font-medium"
                                     >
                                         <Link href={item.url}>
                                             <item.icon />
@@ -146,30 +148,32 @@ export function AppSidebar({ user, role, ...props }: React.ComponentProps<typeof
                     </SidebarGroupContent>
                 </SidebarGroup>
 
-                <SidebarSeparator />
-
                 {userRole === 'admin' && (
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Administración</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                {adminNav.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            tooltip={item.title}
-                                            isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
-                                        >
-                                            <Link href={item.url}>
-                                                <item.icon />
-                                                <span>{item.title}</span>
-                                            </Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
+                    <>
+                        <SidebarSeparator className="my-2" />
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Administración</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {adminNav.map((item) => (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton
+                                                asChild
+                                                tooltip={item.title}
+                                                isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
+                                                className="text-slate-600 hover:text-slate-900 data-[active=true]:bg-indigo-50 data-[active=true]:text-indigo-700 font-medium"
+                                            >
+                                                <Link href={item.url}>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </>
                 )}
 
             </SidebarContent>
@@ -182,48 +186,50 @@ export function AppSidebar({ user, role, ...props }: React.ComponentProps<typeof
                                     size="lg"
                                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                                 >
-                                    <Avatar className="h-8 w-8 rounded-lg">
+                                    <Avatar className="h-8 w-8 rounded-lg border border-slate-200">
                                         <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-                                        <AvatarFallback className="rounded-lg">
-                                            <User2 className="h-4 w-4" />
+                                        <AvatarFallback className="rounded-lg bg-slate-100 text-slate-500">
+                                            {user?.user_metadata?.full_name?.substring(0, 2)?.toUpperCase() || <User2 className="h-4 w-4" />}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold">{user?.user_metadata?.full_name || 'Usuario'}</span>
-                                        <span className="truncate text-xs capitalize">{userRole === 'doctor' ? 'Doctor' : userRole === 'admin' ? 'Administrador' : userRole}</span>
+                                        <span className="truncate font-semibold text-slate-700">{user?.user_metadata?.full_name || 'Usuario'}</span>
+                                        <span className="truncate text-xs capitalize text-slate-500">{userRole === 'doctor' ? 'Doctor' : userRole === 'admin' ? 'Administrador' : userRole}</span>
                                     </div>
-                                    <Settings className="ml-auto size-4" />
+                                    <Settings className="ml-auto size-4 text-slate-400" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
-                                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg border-slate-200 shadow-lg"
                                 side="bottom"
                                 align="end"
                                 sideOffset={4}
                             >
                                 <DropdownMenuLabel className="p-0 font-normal">
                                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                        <Avatar className="h-8 w-8 rounded-lg">
+                                        <Avatar className="h-8 w-8 rounded-lg border border-slate-200">
                                             <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-                                            <AvatarFallback className="rounded-lg">U</AvatarFallback>
+                                            <AvatarFallback className="rounded-lg bg-slate-100 text-slate-500">
+                                                {user?.user_metadata?.full_name?.substring(0, 2)?.toUpperCase() || "U"}
+                                            </AvatarFallback>
                                         </Avatar>
                                         <div className="grid flex-1 text-left text-sm leading-tight">
-                                            <span className="truncate font-semibold">{user?.user_metadata?.full_name || 'Usuario'}</span>
-                                            <span className="truncate text-xs">{user?.email}</span>
+                                            <span className="truncate font-semibold text-slate-700">{user?.user_metadata?.full_name || 'Usuario'}</span>
+                                            <span className="truncate text-xs text-slate-500">{user?.email}</span>
                                         </div>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href="/dashboard/perfil" className="cursor-pointer">
-                                        <UserCog className="mr-2 h-4 w-4" />
-                                        Mi Perfil Profesional
+                                    <Link href="/dashboard/perfil" className="cursor-pointer flex items-center gap-2">
+                                        <UserCog className="h-4 w-4 text-slate-500" />
+                                        <span>Mi Perfil Profesional</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 hover:text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-950/20">
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Cerrar Sesión
+                                <DropdownMenuItem onClick={handleSignOut} className="text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 flex items-center gap-2 cursor-pointer">
+                                    <LogOut className="h-4 w-4" />
+                                    <span>Cerrar Sesión</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

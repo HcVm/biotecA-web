@@ -77,3 +77,43 @@ export async function getRevenueChartData() {
         total: grouped[date]
     }))
 }
+
+export async function getRecentAppointments() {
+    const supabase = await createClient()
+
+    const { data: appointments, error } = await supabase
+        .from('appointments')
+        .select(`
+            id,
+            appointment_date,
+            status,
+            patients (first_name, last_name, email),
+            doctor:profiles!appointments_doctor_id_fkey (full_name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+    if (error) {
+        console.error("Error fetching recent appointments:", error)
+        return []
+    }
+
+    return appointments.map((apt: any) => {
+        const patient = Array.isArray(apt.patients) ? apt.patients[0] : apt.patients
+        const doctor = Array.isArray(apt.doctor) ? apt.doctor[0] : apt.doctor
+
+        // Extract time from appointment_date timestamp
+        const dateObj = new Date(apt.appointment_date)
+        const timeString = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+
+        return {
+            id: apt.id,
+            patientName: patient ? `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || 'Sin Nombre' : 'Paciente Desconocido',
+            patientEmail: patient?.email || '',
+            doctorName: doctor?.full_name || 'Sin asignar',
+            date: apt.appointment_date,
+            time: timeString,
+            status: apt.status
+        }
+    })
+}

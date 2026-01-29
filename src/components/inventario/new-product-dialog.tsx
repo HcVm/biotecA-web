@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus } from "lucide-react"
+import { Plus, Package, Layers, CircleDollarSign, AlertTriangle } from "lucide-react"
 import { productSchema, ProductFormValues } from "@/lib/validations-inventory"
 import { createProduct } from "@/lib/actions/inventory"
 import { useRouter } from "next/navigation"
@@ -35,7 +35,7 @@ export function NewProductDialog() {
     const router = useRouter()
 
     const form = useForm<ProductFormValues>({
-        resolver: zodResolver(productSchema),
+        resolver: zodResolver(productSchema) as any,
         defaultValues: {
             name: "",
             description: "",
@@ -68,164 +68,186 @@ export function NewProductDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
                     <Plus className="mr-2 h-4 w-4" /> Nuevo Producto
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Registrar Nuevo Producto</DialogTitle>
+                    <DialogTitle className="text-xl">Registrar Nuevo Producto</DialogTitle>
                     <DialogDescription>
-                        Agregue un nuevo producto al inventario.
+                        Ingrese los detalles para añadir un item al inventario.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-2">
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nombre *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Vendas, Alcohol..." {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="sku"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>SKU / Código</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="COD-123" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="stock_quantity"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Stock Inicial</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="min_stock_level"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Stock Mínimo (Alerta)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="price"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Precio Venta (€)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" step="0.01" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="cost"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Costo Compra (€)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" step="0.01" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Categoría</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        {/* Datos Básicos */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <Package className="mr-2 h-4 w-4 text-blue-600" /> Información del Producto
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem className="md:col-span-2">
+                                            <FormLabel>Nombre del Producto *</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Seleccione categoría" />
-                                                </SelectTrigger>
+                                                <Input placeholder="Ej: Vendas Elásticas 10cm" {...field} />
                                             </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="Consumible">Consumible</SelectItem>
-                                                <SelectItem value="Ortopedia">Ortopedia</SelectItem>
-                                                <SelectItem value="Medicamento">Medicamento</SelectItem>
-                                                <SelectItem value="Equipo">Equipo</SelectItem>
-                                                <SelectItem value="Venta">Producto de Venta</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="supplier"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Proveedor</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Nombre del proveedor" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="sku"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>SKU / Código</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="COD-001" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="category"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Categoría</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Seleccione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Consumible">Consumible</SelectItem>
+                                                    <SelectItem value="Ortopedia">Ortopedia</SelectItem>
+                                                    <SelectItem value="Medicamento">Medicamento</SelectItem>
+                                                    <SelectItem value="Equipo">Equipo</SelectItem>
+                                                    <SelectItem value="Venta">Producto de Venta</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="supplier"
+                                    render={({ field }) => (
+                                        <FormItem className="md:col-span-2">
+                                            <FormLabel>Proveedor</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Nombre del proveedor principal" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Descripción</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Detalles del producto..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Stock */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <Layers className="mr-2 h-4 w-4 text-indigo-600" /> Control de Stock
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="stock_quantity"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Stock Inicial</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="min_stock_level"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-1">
+                                                Stock Mínimo
+                                                <AlertTriangle className="h-3 w-3 text-orange-400" />
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
 
-                        <DialogFooter>
-                            <Button type="submit" disabled={isPending}>
-                                {isPending ? "Guardando..." : "Guardar Producto"}
+                        {/* Finanzas */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b border-slate-100 pb-2">
+                                <CircleDollarSign className="mr-2 h-4 w-4 text-emerald-600" /> Finanzas
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="cost"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Costo Unitario (€)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" step="0.01" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Precio Venta (€)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" step="0.01" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem className="col-span-2">
+                                            <FormLabel>Descripción / Notas</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Detalles adicionales..."
+                                                    {...field}
+                                                    className="min-h-[80px]"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter className="pt-4 border-t border-slate-100">
+                            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+                            <Button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700">
+                                {isPending ? "Registrando..." : "Guardar Producto"}
                             </Button>
                         </DialogFooter>
                     </form>

@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus } from "lucide-react"
+import { Plus, User, Phone, CreditCard } from "lucide-react"
 import { patientSchema, PatientFormValues } from "@/lib/validations"
 import { createPatient } from "@/lib/actions/patients"
 import { useRouter } from "next/navigation"
@@ -77,58 +77,49 @@ export function NewPatientDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="first_name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nombre *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Juan" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="last_name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Apellido *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Pérez" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Datos Personales */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b pb-1">
+                                <User className="mr-2 h-4 w-4" /> Datos Personales
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="first_name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nombre *</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Juan" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="last_name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Apellido *</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Pérez" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={form.control}
-                                name="email"
+                                name="date_of_birth"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>Fecha de Nacimiento</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="juan@ejemplo.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Teléfono</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="+34 600 ..." {...field} />
+                                            <Input type="date" {...field} className="w-full md:w-1/2" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -136,56 +127,47 @@ export function NewPatientDialog() {
                             />
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="date_of_birth"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Fecha de Nacimiento</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Dirección</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Calle Principal 123" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Contacto */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b pb-1">
+                                <Phone className="mr-2 h-4 w-4" /> Contacto & Ubicación
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="juan@ejemplo.com" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Teléfono</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="+34 600 ..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={form.control}
-                                name="insurance_provider"
+                                name="address"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Seguradora</FormLabel>
+                                        <FormLabel>Dirección</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Sanitas, Adeslas..." {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="insurance_number"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nº Póliza/Tarjeta</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="12345678" {...field} />
+                                            <Input placeholder="Calle Principal 123" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -193,22 +175,57 @@ export function NewPatientDialog() {
                             />
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="notes"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Notas Iniciales</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Observaciones..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Seguro & Otros */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center border-b pb-1">
+                                <CreditCard className="mr-2 h-4 w-4" /> Información Médica
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="insurance_provider"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Aseguradora</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Sanitas, Adeslas..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="insurance_number"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nº Póliza</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="12345678" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="notes"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Notas Iniciales</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Observaciones clínicas, alergias..." className="min-h-[80px]" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
-                        <DialogFooter>
-                            <Button type="submit" disabled={isPending}>
+                        <DialogFooter className="pt-4">
+                            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+                            <Button type="submit" disabled={isPending} className="bg-teal-600 hover:bg-teal-700">
                                 {isPending ? "Guardando..." : "Guardar Paciente"}
                             </Button>
                         </DialogFooter>

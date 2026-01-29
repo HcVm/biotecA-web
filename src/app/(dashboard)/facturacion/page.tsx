@@ -1,78 +1,43 @@
 import { getInvoices } from "@/lib/actions/billing"
 import { NewInvoiceDialog } from "@/components/facturacion/new-invoice-dialog"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
+import { BillingStats } from "@/components/facturacion/stats"
+import { BillingList } from "@/components/facturacion/billing-list"
 
 export default async function FacturacionPage() {
     const invoices = await getInvoices()
 
+    // Calculate stats on the server
+    const totalRevenue = invoices
+        .filter(inv => inv.status === 'paid')
+        .reduce((sum, inv) => sum + inv.total_amount, 0)
+
+    const pendingAmount = invoices
+        .filter(inv => inv.status === 'pending')
+        .reduce((sum, inv) => sum + inv.total_amount, 0)
+
+    const paidCount = invoices.filter(inv => inv.status === 'paid').length
+    const pendingCount = invoices.filter(inv => inv.status === 'pending').length
+
     return (
-        <div className="container mx-auto py-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="flex-1 space-y-8 p-8 pt-6 min-h-screen bg-slate-50/50">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-200">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Facturación</h1>
-                    <p className="text-muted-foreground">
-                        Gestión de facturas y pagos.
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900">Facturación y Pagos</h2>
+                    <p className="text-muted-foreground mt-1">
+                        Gestión financiera, control de facturas y seguimiento de cobros.
                     </p>
                 </div>
                 <NewInvoiceDialog />
             </div>
 
-            <div className="rounded-md border bg-card text-card-foreground shadow">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nº Factura</TableHead>
-                            <TableHead>Paciente</TableHead>
-                            <TableHead>Fecha</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">Importe Total</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {invoices.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                                    No hay facturas registradas.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            invoices.map((invoice) => (
-                                <TableRow key={invoice.id}>
-                                    <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
-                                    <TableCell>
-                                        {invoice.patient?.first_name} {invoice.patient?.last_name}
-                                    </TableCell>
-                                    <TableCell>
-                                        {format(new Date(invoice.issue_date), "dd/MM/yyyy")}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={
-                                            invoice.status === 'paid' ? 'default' :
-                                                invoice.status === 'pending' ? 'secondary' : 'outline'
-                                        }>
-                                            {invoice.status === 'paid' ? 'Pagada' :
-                                                invoice.status === 'pending' ? 'Pendiente' : invoice.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right font-bold">
-                                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(invoice.total_amount)}
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+            <BillingStats
+                totalRevenue={totalRevenue}
+                pendingAmount={pendingAmount}
+                paidCount={paidCount}
+                pendingCount={pendingCount}
+            />
+
+            <BillingList data={invoices} />
         </div>
     )
 }

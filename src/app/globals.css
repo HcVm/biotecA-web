@@ -119,7 +119,73 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* --- CALENDAR OVERRIDES --- */
+.rbc-calendar {
+  font-family: inherit;
+  color: var(--foreground);
+}
+
+.rbc-header {
+  @apply !text-xs !font-semibold !uppercase !text-muted-foreground !border-b !border-border !py-2;
+}
+
+.rbc-today {
+  background-color: var(--muted) !important;
+}
+
+.rbc-event {
+  @apply !rounded !shadow-sm !border-0;
+}
+
+.rbc-time-view {
+  @apply !border-0;
+}
+
+.rbc-time-header.rbc-overflowing {
+  @apply !border-r-0;
+}
+
+.rbc-time-header-content {
+  @apply !border-l-0;
+}
+
+.rbc-time-content {
+  @apply !border-t-0;
+}
+
+.rbc-timeslot-group {
+  @apply !border-b !border-slate-100;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  @apply !border-t !border-slate-50;
+}
+
+.rbc-current-time-indicator {
+  background-color: var(--primary) !important;
+  height: 2px !important;
+}
+
+.rbc-off-range-bg {
+  @apply !bg-slate-50/50;
+}
+
+/* Hide some borders */
+.rbc-month-view,
+.rbc-time-view {
+  @apply !border-0;
+}
+
+.rbc-header+.rbc-header {
+  @apply !border-l !border-slate-100;
+}
+
+.rbc-day-bg+.rbc-day-bg {
+  @apply !border-l !border-slate-100;
 }
